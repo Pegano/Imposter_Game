@@ -62,11 +62,11 @@ export function useSocket() {
     handler: ServerToClientEvents[E]
   ) => {
     if (socketRef.current) {
-      socketRef.current.on(event as string, handler as (...args: unknown[]) => void)
+      socketRef.current.on(event as any, handler as (...args: unknown[]) => void)
     }
     return () => {
       if (socketRef.current) {
-        socketRef.current.off(event as string, handler as (...args: unknown[]) => void)
+        socketRef.current.off(event as any, handler as (...args: unknown[]) => void)
       }
     }
   }, [])
@@ -76,7 +76,7 @@ export function useSocket() {
     handler?: ServerToClientEvents[E]
   ) => {
     if (socketRef.current) {
-      socketRef.current.off(event as string, handler as ((...args: unknown[]) => void) | undefined)
+      socketRef.current.off(event as any, handler as ((...args: unknown[]) => void) | undefined)
     }
   }, [])
 
