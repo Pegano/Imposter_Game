@@ -7,8 +7,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  WEB_IMAGE: ghcr.io/${{ github.repository_owner }}/imposter-game-web
-  SERVER_IMAGE: ghcr.io/${{ github.repository_owner }}/imposter-game-server
 
 jobs:
   build-and-push:
@@ -21,6 +19,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set lowercase owner
+        id: meta
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner=$OWNER" >> $GITHUB_OUTPUT
+          echo "web_image=ghcr.io/$OWNER/imposter-game-web" >> $GITHUB_OUTPUT
+          echo "server_image=ghcr.io/$OWNER/imposter-game-server" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -38,7 +44,7 @@ jobs:
           context: .
           file: apps/web/Dockerfile
           push: true
-          tags: ${{ env.WEB_IMAGE }}:latest
+          tags: ${{ steps.meta.outputs.web_image }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -48,7 +54,7 @@ jobs:
           context: .
           file: apps/server/Dockerfile
           push: true
-          tags: ${{ env.SERVER_IMAGE }}:latest
+          tags: ${{ steps.meta.outputs.server_image }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -60,6 +66,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set lowercase owner
+        id: meta
+        run: |
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "owner=$OWNER" >> $GITHUB_OUTPUT
 
       - name: Copy docker-compose.yml to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -78,7 +90,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             cd ~/imposter-game
-            export GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
+            export GITHUB_REPOSITORY_OWNER=${{ steps.meta.outputs.owner }}
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull
             docker compose up -d
