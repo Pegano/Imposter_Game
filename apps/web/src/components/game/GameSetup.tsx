@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { useGameStore } from '@/stores/gameStore'
 import { categoriesApi, wordsApi, type ApiCategory } from '@/lib/api'
 import { socket } from '@/lib/socket'
-import type { Difficulty } from '@imposter-game/shared'
+import type { Difficulty, GameSettings } from '@imposter-game/shared'
 
 export function GameSetup() {
   const navigate = useNavigate()
@@ -30,6 +30,15 @@ export function GameSetup() {
       .then(setCategories)
       .finally(() => setLoadingCats(false))
   }, [])
+
+  // In multi-device mode settings changes must also reach the server,
+  // otherwise syncGameState overwrites local changes when start_round fires.
+  const handleUpdateSettings = (partial: Partial<GameSettings>) => {
+    updateSettings(partial)
+    if (isMultiDevice) {
+      socket.emit('update_settings', { ...settings, ...partial })
+    }
+  }
 
   const handleStartRound = async () => {
     setError('')
@@ -62,119 +71,128 @@ export function GameSetup() {
         <h1 className="text-xl font-semibold text-white ml-4">Instellingen</h1>
       </div>
 
-      <div className="flex-1 space-y-6 overflow-auto">
-        {/* Category Selection */}
-        <div>
-          <label className="block text-slate-400 text-sm mb-2">Categorie</label>
+      {/* Non-host in multi-device mode: no settings access */}
+      {isMultiDevice && !amIHost ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center text-slate-500">
+            <p className="text-3xl mb-3">⏳</p>
+            <p>Wachten op host om de instellingen te kiezen...</p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex-1 space-y-6 overflow-auto">
+          {/* Category Selection */}
+          <div>
+            <label className="block text-slate-400 text-sm mb-2">Categorie</label>
 
-          {loadingCats ? (
-            <p className="text-slate-500 text-sm">Laden...</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {/* "Alle" option */}
-              <button
-                onClick={() => {
-                  setSelectedCategoryId(null)
-                  updateSettings({ categoryId: undefined })
-                }}
-                className={`p-3 rounded-xl text-left transition-all flex items-center gap-2
-                  ${selectedCategoryId === null
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
-              >
-                <span className="text-xl">🎲</span>
-                <span className="text-sm font-medium">Alle categorieën</span>
-              </button>
-
-              {categories.map((cat) => (
+            {loadingCats ? (
+              <p className="text-slate-500 text-sm">Laden...</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  key={cat.id}
                   onClick={() => {
-                    setSelectedCategoryId(cat.id)
-                    updateSettings({ categoryId: cat.id })
+                    setSelectedCategoryId(null)
+                    handleUpdateSettings({ categoryId: undefined })
                   }}
                   className={`p-3 rounded-xl text-left transition-all flex items-center gap-2
-                    ${selectedCategoryId === cat.id
+                    ${selectedCategoryId === null
                       ? 'bg-primary-500 text-white'
                       : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
                     }`}
                 >
-                  <span className="text-xl">{cat.icon ?? '📁'}</span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{cat.name}</p>
-                    <p className={`text-xs ${selectedCategoryId === cat.id ? 'text-primary-100' : 'text-slate-500'}`}>
-                      {cat.wordCount} woorden
-                    </p>
-                  </div>
+                  <span className="text-xl">🎲</span>
+                  <span className="text-sm font-medium">Alle categorieën</span>
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
 
-        {/* Difficulty Selection */}
-        <div>
-          <label className="block text-slate-400 text-sm mb-2">Moeilijkheid</label>
-          <div className="flex gap-2">
-            {([1, 2, 3] as Difficulty[]).map((level) => (
-              <button
-                key={level}
-                onClick={() => updateSettings({ difficulty: level })}
-                className={`flex-1 py-4 rounded-xl transition-all flex flex-col items-center
-                  ${settings.difficulty === level
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                  }`}
-              >
-                <span className="text-2xl mb-1">
-                  {level === 1 ? '😊' : level === 2 ? '😐' : '😈'}
-                </span>
-                <span className="text-sm">
-                  {level === 1 ? 'Makkelijk' : level === 2 ? 'Gemiddeld' : 'Moeilijk'}
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Timer Toggle */}
-        <div>
-          <label className="block text-slate-400 text-sm mb-2">Timer</label>
-          <div className="bg-slate-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-white">Timer inschakelen</span>
-              <button
-                onClick={() => updateSettings({ timerEnabled: !settings.timerEnabled })}
-                className={`w-14 h-8 rounded-full transition-colors
-                  ${settings.timerEnabled ? 'bg-primary-500' : 'bg-slate-600'}`}
-              >
-                <div
-                  className={`w-6 h-6 bg-white rounded-full transition-transform
-                    ${settings.timerEnabled ? 'translate-x-7' : 'translate-x-1'}`}
-                />
-              </button>
-            </div>
-
-            {settings.timerEnabled && (
-              <div>
-                <input
-                  type="range"
-                  min={60}
-                  max={300}
-                  step={30}
-                  value={settings.timerSeconds}
-                  onChange={(e) => updateSettings({ timerSeconds: Number(e.target.value) })}
-                  className="w-full"
-                />
-                <p className="text-center text-white mt-2">
-                  {Math.floor(settings.timerSeconds / 60)}:{String(settings.timerSeconds % 60).padStart(2, '0')} minuten
-                </p>
+                {categories.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setSelectedCategoryId(cat.id)
+                      handleUpdateSettings({ categoryId: cat.id })
+                    }}
+                    className={`p-3 rounded-xl text-left transition-all flex items-center gap-2
+                      ${selectedCategoryId === cat.id
+                        ? 'bg-primary-500 text-white'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                      }`}
+                  >
+                    <span className="text-xl">{cat.icon ?? '📁'}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{cat.name}</p>
+                      <p className={`text-xs ${selectedCategoryId === cat.id ? 'text-primary-100' : 'text-slate-500'}`}>
+                        {cat.wordCount} woorden
+                      </p>
+                    </div>
+                  </button>
+                ))}
               </div>
             )}
           </div>
+
+          {/* Difficulty Selection */}
+          <div>
+            <label className="block text-slate-400 text-sm mb-2">Moeilijkheid</label>
+            <div className="flex gap-2">
+              {([1, 2, 3] as Difficulty[]).map((level) => (
+                <button
+                  key={level}
+                  onClick={() => handleUpdateSettings({ difficulty: level })}
+                  className={`flex-1 py-4 rounded-xl transition-all flex flex-col items-center
+                    ${settings.difficulty === level
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                >
+                  <span className="text-2xl mb-1">
+                    {level === 1 ? '😊' : level === 2 ? '😐' : '😈'}
+                  </span>
+                  <span className="text-sm">
+                    {level === 1 ? 'Makkelijk' : level === 2 ? 'Gemiddeld' : 'Moeilijk'}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Timer Toggle */}
+          <div>
+            <label className="block text-slate-400 text-sm mb-2">Timer</label>
+            <div className="bg-slate-800 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-white">Timer inschakelen</span>
+                <button
+                  onClick={() => handleUpdateSettings({ timerEnabled: !settings.timerEnabled })}
+                  className={`w-14 h-8 rounded-full transition-colors
+                    ${settings.timerEnabled ? 'bg-primary-500' : 'bg-slate-600'}`}
+                >
+                  <div
+                    className={`w-6 h-6 bg-white rounded-full transition-transform
+                      ${settings.timerEnabled ? 'translate-x-7' : 'translate-x-1'}`}
+                  />
+                </button>
+              </div>
+
+              {settings.timerEnabled && (
+                <div>
+                  <input
+                    type="range"
+                    min={60}
+                    max={300}
+                    step={30}
+                    value={settings.timerSeconds}
+                    onChange={(e) => handleUpdateSettings({ timerSeconds: Number(e.target.value) })}
+                    className="w-full"
+                  />
+                  <p className="text-center text-white mt-2">
+                    {Math.floor(settings.timerSeconds / 60)}:{String(settings.timerSeconds % 60).padStart(2, '0')} minuten
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && (
         <p className="text-red-400 text-sm text-center mb-3">{error}</p>
