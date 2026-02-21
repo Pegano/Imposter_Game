@@ -1,6 +1,6 @@
 services:
   web:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/imposter-game-web:latest
+    image: ghcr.io/pegano/imposter-game-web:latest
     ports:
       - "3010:80"
     depends_on:
@@ -8,7 +8,7 @@ services:
     restart: unless-stopped
 
   server:
-    image: ghcr.io/${GITHUB_REPOSITORY_OWNER}/imposter-game-server:latest
+    image: ghcr.io/pegano/imposter-game-server:latest
     environment:
       - DATABASE_URL=file:/data/imposter.db
       - NODE_ENV=production

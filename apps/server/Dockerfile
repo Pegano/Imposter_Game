@@ -2,6 +2,9 @@
 # Uses tsx to run TypeScript in production (compatible with npm workspaces)
 FROM node:20-alpine
 
+# Prisma vereist OpenSSL op Alpine Linux
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Copy workspace configuration
