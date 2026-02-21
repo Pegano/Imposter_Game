@@ -1,0 +1,16 @@
+node_modules
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+!**/.env.example
+**/data
+**/*.db
+**/*.db-journal
+.git
+.github
+docs
+*.md
+!README.md
+.vscode
+.idea

@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  icon      String?
+  isDefault Boolean  @default(false)
+  words     Word[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Word {
+  id         String   @id @default(uuid())
+  word       String
+  hintEasy   String
+  hintMedium String
+  hintHard   String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model PlayerGroup {
+  id        String   @id @default(uuid())
+  name      String
+  players   Player[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Player {
+  id        String       @id @default(uuid())
+  name      String
+  avatarId  String
+  group     PlayerGroup? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId   String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
