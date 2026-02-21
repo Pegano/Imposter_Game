@@ -103,6 +103,7 @@ export function setupSocketHandlers(
       socketToGame.set(socket.id, { gameCode: code, playerId: player.id })
       socket.join(code)
 
+      socket.emit('your_player', player)
       io.to(code).emit('player_joined', player)
       io.to(code).emit('game_state', session)
 
