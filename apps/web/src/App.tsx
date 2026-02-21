@@ -5,8 +5,11 @@ import { Join } from './pages/Join'
 import { Game } from './pages/Game'
 import { Settings } from './pages/Settings'
 import { Words } from './pages/Words'
+import { useGameSocket } from './hooks/useGameSocket'
 
 function App() {
+  useGameSocket()
+
   return (
     <div className="flex flex-col min-h-screen safe-area-top safe-area-bottom">
       <Routes>

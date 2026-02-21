@@ -3,11 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { useGameStore } from '@/stores/gameStore'
 import { categoriesApi, wordsApi, type ApiCategory } from '@/lib/api'
+import { socket } from '@/lib/socket'
 import type { Difficulty } from '@imposter-game/shared'
 
 export function GameSetup() {
   const navigate = useNavigate()
-  const { settings, updateSettings, assignRoles, players } = useGameStore()
+  const { settings, updateSettings, assignRoles, players, isMultiDevice, myPlayerId } = useGameStore()
+
+  const myPlayer = players.find((p) => p.id === myPlayerId)
+  const amIHost = myPlayer?.isHost ?? false
 
   const [categories, setCategories] = useState<ApiCategory[]>([])
   const [loadingCats, setLoadingCats] = useState(true)
@@ -18,8 +22,8 @@ export function GameSetup() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (players.length < 3) navigate('/lobby')
-  }, [players.length, navigate])
+    if (!isMultiDevice && players.length < 3) navigate('/lobby')
+  }, [players.length, navigate, isMultiDevice])
 
   useEffect(() => {
     categoriesApi.getAll()
@@ -177,9 +181,19 @@ export function GameSetup() {
       )}
 
       {/* Start Button */}
-      <Button variant="primary" size="lg" fullWidth onClick={handleStartRound} disabled={starting}>
-        {starting ? 'Woord ophalen...' : 'Start Ronde →'}
-      </Button>
+      {isMultiDevice && !amIHost ? (
+        <p className="text-slate-400 text-sm text-center pb-2">
+          Wachten op host om nieuwe ronde te starten...
+        </p>
+      ) : isMultiDevice && amIHost ? (
+        <Button variant="primary" size="lg" fullWidth onClick={() => socket.emit('start_round')}>
+          Start Ronde →
+        </Button>
+      ) : (
+        <Button variant="primary" size="lg" fullWidth onClick={handleStartRound} disabled={starting}>
+          {starting ? 'Woord ophalen...' : 'Start Ronde →'}
+        </Button>
+      )}
     </div>
   )
 }

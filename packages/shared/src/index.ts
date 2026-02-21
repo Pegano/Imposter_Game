@@ -100,7 +100,7 @@ export interface GameSession {
 
 // Client → Server events
 export interface ClientToServerEvents {
-  create_game: () => void
+  create_game: (data: { playerName: string; avatarId: string }) => void
   join_game: (data: { code: string; name: string; avatarId: string }) => void
   leave_game: () => void
   add_player: (data: { name: string; avatarId: string }) => void
@@ -123,6 +123,7 @@ export interface ServerToClientEvents {
   player_left: (playerId: string) => void
   player_viewed: (playerId: string) => void
   your_role: (data: { isImposter: boolean; content: string }) => void
+  your_player: (player: GamePlayer) => void
   timer_update: (remainingSeconds: number) => void
   game_revealed: (data: { word: string; imposter: GamePlayer; hint: string }) => void
   error: (message: string) => void

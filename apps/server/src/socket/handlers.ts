@@ -4,7 +4,6 @@ import type {
   ServerToClientEvents,
   GameSession,
   GamePlayer,
-  GameSettings,
 } from '@imposter-game/shared'
 import { generateGameCode, getHintForDifficulty } from '@imposter-game/shared'
 import { prisma } from '../db/client.js'
@@ -34,9 +33,21 @@ export function setupSocketHandlers(
   io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`)
 
-    // Create a new game
-    socket.on('create_game', () => {
+    // Create a new game (host is automatically added as first player)
+    socket.on('create_game', ({ playerName, avatarId }) => {
       const code = generateGameCode()
+
+      const hostPlayer: GamePlayer = {
+        id: crypto.randomUUID(),
+        name: playerName,
+        avatarId,
+        isImposter: false,
+        hasViewed: false,
+        isHost: true,
+        isConnected: true,
+        joinedAt: new Date(),
+      }
+
       const session: GameSession = {
         id: crypto.randomUUID(),
         code,
@@ -47,16 +58,18 @@ export function setupSocketHandlers(
           timerEnabled: true,
           timerSeconds: 120,
         },
-        players: [],
+        players: [hostPlayer],
         timerPaused: false,
         createdAt: new Date(),
       }
 
       gameSessions.set(code, session)
+      socketToGame.set(socket.id, { gameCode: code, playerId: hostPlayer.id })
       socket.join(code)
 
       socket.emit('game_created', session)
-      console.log(`Game created: ${code}`)
+      socket.emit('your_player', hostPlayer)
+      console.log(`Game created: ${code} by ${playerName}`)
     })
 
     // Join an existing game

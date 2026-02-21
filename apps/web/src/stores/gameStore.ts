@@ -15,6 +15,9 @@ interface GameStore {
   // Timer state
   timerRemaining: number
 
+  // Multi-device mode
+  isMultiDevice: boolean
+
   // Actions
   createGame: () => void
   setGameState: (state: GameState) => void
@@ -28,6 +31,11 @@ interface GameStore {
   assignRoles: (word: Word) => void
   resetGame: () => void
   nextRound: () => void
+
+  // Multi-device actions
+  setMultiDevice: (v: boolean) => void
+  setMyPlayerId: (id: string) => void
+  syncGameState: (session: GameSession) => void
 }
 
 const DEFAULT_SETTINGS: GameSettings = {
@@ -47,6 +55,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   myPlayerId: null,
   myRole: null,
   timerRemaining: 0,
+  isMultiDevice: false,
 
   // Actions
   createGame: () => {
@@ -146,4 +155,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
         hasViewed: false,
       })),
     })),
+
+  setMultiDevice: (v) => set({ isMultiDevice: v }),
+
+  setMyPlayerId: (id) => set({ myPlayerId: id }),
+
+  syncGameState: (session) =>
+    set({
+      session,
+      gameState: session.state,
+      players: session.players,
+      settings: session.settings,
+      currentWord: session.word ?? null,
+    }),
 }))

@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/Button'
 import { useGameStore } from '@/stores/gameStore'
 import { getAvatarById } from '@/lib/avatars'
 import { getHintForDifficulty } from '@imposter-game/shared'
+import { socket } from '@/lib/socket'
 
 export function GameReveal() {
   const navigate = useNavigate()
-  const { players, currentWord, settings, nextRound, resetGame } = useGameStore()
+  const { players, currentWord, settings, nextRound, resetGame, isMultiDevice } = useGameStore()
 
   const imposter = players.find((p) => p.isImposter)
   const imposterHint = currentWord
@@ -15,12 +16,20 @@ export function GameReveal() {
     : ''
 
   const handleNextRound = () => {
-    nextRound()
+    if (isMultiDevice) {
+      socket.emit('next_round')
+    } else {
+      nextRound()
+    }
   }
 
   const handleEndGame = () => {
-    resetGame()
-    navigate('/')
+    if (isMultiDevice) {
+      socket.emit('end_game')
+    } else {
+      resetGame()
+      navigate('/')
+    }
   }
 
   return (
