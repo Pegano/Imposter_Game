@@ -2,14 +2,17 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { socket } from '@/lib/socket'
 import { useGameStore } from '@/stores/gameStore'
-import type { GameSession, GameState } from '@imposter-game/shared'
+import type { GameSession } from '@imposter-game/shared'
 
-const ACTIVE_STATES: GameState[] = ['joining', 'setup', 'viewing', 'discussion', 'reveal', 'scoreboard']
+const ACTIVE_STATES = new Set(['joining', 'setup', 'viewing', 'discussion', 'reveal', 'scoreboard'])
 
 export function useGameSocket() {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Flag: we just emitted rejoin_game and are waiting for the response
+    let pendingRejoin = false
+
     const handleGameState = (session: GameSession | null) => {
       if (!session) {
         localStorage.removeItem('imposter_session')
@@ -21,14 +24,20 @@ export function useGameSocket() {
       const prevState = useGameStore.getState().gameState
       useGameStore.getState().syncGameState(session)
 
-      // Persist session for auto-rejoin on reconnect
+      // Persist session so we can auto-rejoin after a disconnect or refresh
       const myPlayerId = useGameStore.getState().myPlayerId
       if (myPlayerId) {
         localStorage.setItem('imposter_session', JSON.stringify({ code: session.code, playerId: myPlayerId }))
       }
 
-      // Navigate to /game when entering an active game state from outside
-      if (ACTIVE_STATES.includes(session.state) && !ACTIVE_STATES.includes(prevState)) {
+      // Navigate to /game when:
+      // 1. A new round starts (state → viewing), OR
+      // 2. We just rejoined an already-active game (pendingRejoin was set)
+      if (
+        (session.state === 'viewing' && prevState !== 'viewing') ||
+        (pendingRejoin && ACTIVE_STATES.has(session.state))
+      ) {
+        pendingRejoin = false
         navigate('/game')
       }
     }
@@ -59,8 +68,6 @@ export function useGameSocket() {
     })
 
     socket.on('game_revealed', ({ word, imposter, hint }) => {
-      // game_revealed fires alongside game_state 'reveal'; data already synced via game_state
-      // Store reveal-specific info in currentWord if missing
       const store = useGameStore.getState()
       if (!store.currentWord) {
         store.setCurrentWord({
@@ -74,28 +81,36 @@ export function useGameSocket() {
           updatedAt: new Date(),
         })
       }
-      // Make sure imposter flag is visible — syncGameState handles it via game_state
       void imposter
     })
 
     socket.on('error', (message) => {
       console.error('[Socket error]', message)
+      // If rejoin failed, clear the flag + stale localStorage so it doesn't
+      // accidentally trigger navigation when the host creates a new game
+      if (pendingRejoin) {
+        pendingRejoin = false
+        localStorage.removeItem('imposter_session')
+      }
     })
 
-    // Auto-rejoin when socket (re)connects
+    // Auto-rejoin when the socket (re)connects after a disconnect or refresh
     const handleConnect = () => {
       try {
         const stored = localStorage.getItem('imposter_session')
         if (!stored) return
         const { code, playerId } = JSON.parse(stored) as { code?: string; playerId?: string }
-        if (code && playerId) socket.emit('rejoin_game', { code, playerId })
+        if (code && playerId) {
+          pendingRejoin = true
+          socket.emit('rejoin_game', { code, playerId })
+        }
       } catch {
         localStorage.removeItem('imposter_session')
       }
     }
 
     socket.on('connect', handleConnect)
-    // Socket may already be connected when this effect runs
+    // If socket is already connected on mount (typical first load), attempt rejoin now
     if (socket.connected) handleConnect()
 
     return () => {
