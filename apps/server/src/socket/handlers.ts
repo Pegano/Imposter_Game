@@ -111,6 +111,21 @@ export function setupSocketHandlers(
         return
       }
 
+      // Prevent duplicates: if a disconnected player with the same name+avatar
+      // already exists, reconnect them instead of creating a new entry
+      const existingPlayer = session.players.find(
+        (p) => p.name === name && p.avatarId === avatarId && !p.isConnected
+      )
+      if (existingPlayer) {
+        existingPlayer.isConnected = true
+        socketToGame.set(socket.id, { gameCode: code.toUpperCase(), playerId: existingPlayer.id })
+        socket.join(code.toUpperCase())
+        socket.emit('your_player', existingPlayer)
+        io.to(code.toUpperCase()).emit('game_state', session)
+        console.log(`Player ${name} reconnected via join_game in game ${code}`)
+        return
+      }
+
       const player: GamePlayer = {
         id: crypto.randomUUID(),
         name,
