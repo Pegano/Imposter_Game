@@ -138,14 +138,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })
   },
 
-  resetGame: () =>
+  resetGame: () => {
+    localStorage.removeItem('imposter_session')
     set({
       gameState: 'lobby',
       players: [],
       currentWord: null,
       myRole: null,
       timerRemaining: 0,
-    }),
+    })
+  },
 
   nextRound: () =>
     set((s) => ({

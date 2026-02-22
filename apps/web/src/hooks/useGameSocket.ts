@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { socket } from '@/lib/socket'
 import { useGameStore } from '@/stores/gameStore'
-import type { GameSession } from '@imposter-game/shared'
+import type { GameSession, GameState } from '@imposter-game/shared'
+
+const ACTIVE_STATES: GameState[] = ['joining', 'setup', 'viewing', 'discussion', 'reveal', 'scoreboard']
 
 export function useGameSocket() {
   const navigate = useNavigate()
@@ -10,6 +12,7 @@ export function useGameSocket() {
   useEffect(() => {
     const handleGameState = (session: GameSession | null) => {
       if (!session) {
+        localStorage.removeItem('imposter_session')
         useGameStore.getState().resetGame()
         navigate('/')
         return
@@ -18,8 +21,14 @@ export function useGameSocket() {
       const prevState = useGameStore.getState().gameState
       useGameStore.getState().syncGameState(session)
 
-      // Navigate to game when a round starts
-      if (session.state === 'viewing' && prevState !== 'viewing') {
+      // Persist session for auto-rejoin on reconnect
+      const myPlayerId = useGameStore.getState().myPlayerId
+      if (myPlayerId) {
+        localStorage.setItem('imposter_session', JSON.stringify({ code: session.code, playerId: myPlayerId }))
+      }
+
+      // Navigate to /game when entering an active game state from outside
+      if (ACTIVE_STATES.includes(session.state) && !ACTIVE_STATES.includes(prevState)) {
         navigate('/game')
       }
     }
@@ -30,6 +39,11 @@ export function useGameSocket() {
 
     socket.on('your_player', (player) => {
       useGameStore.getState().setMyPlayerId(player.id)
+      // Save immediately with game code if session is already in store (host flow)
+      const code = useGameStore.getState().session?.code
+      if (code) {
+        localStorage.setItem('imposter_session', JSON.stringify({ code, playerId: player.id }))
+      }
     })
 
     socket.on('your_role', (role) => {
@@ -68,6 +82,22 @@ export function useGameSocket() {
       console.error('[Socket error]', message)
     })
 
+    // Auto-rejoin when socket (re)connects
+    const handleConnect = () => {
+      try {
+        const stored = localStorage.getItem('imposter_session')
+        if (!stored) return
+        const { code, playerId } = JSON.parse(stored) as { code?: string; playerId?: string }
+        if (code && playerId) socket.emit('rejoin_game', { code, playerId })
+      } catch {
+        localStorage.removeItem('imposter_session')
+      }
+    }
+
+    socket.on('connect', handleConnect)
+    // Socket may already be connected when this effect runs
+    if (socket.connected) handleConnect()
+
     return () => {
       socket.off('game_created', handleGameState)
       socket.off('game_state', handleGameState)
@@ -77,6 +107,7 @@ export function useGameSocket() {
       socket.off('timer_update')
       socket.off('game_revealed')
       socket.off('error')
+      socket.off('connect', handleConnect)
     }
   }, [navigate])
 }

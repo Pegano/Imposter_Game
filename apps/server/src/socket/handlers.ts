@@ -136,6 +136,42 @@ export function setupSocketHandlers(
       console.log(`Player ${name} joined game ${code}`)
     })
 
+    // Rejoin an existing game (after disconnect/refresh)
+    socket.on('rejoin_game', ({ code, playerId }) => {
+      const upperCode = code.toUpperCase()
+      const session = gameSessions.get(upperCode)
+
+      if (!session) {
+        socket.emit('error', 'Game niet gevonden')
+        return
+      }
+
+      const player = session.players.find((p) => p.id === playerId)
+      if (!player) {
+        socket.emit('error', 'Speler niet gevonden in dit spel')
+        return
+      }
+
+      player.isConnected = true
+      socketToGame.set(socket.id, { gameCode: upperCode, playerId })
+      socket.join(upperCode)
+
+      socket.emit('your_player', player)
+      socket.emit('game_state', session)
+
+      // Re-send role if word is known (viewing / discussion / reveal / scoreboard)
+      if (session.word && ['viewing', 'discussion', 'reveal', 'scoreboard'].includes(session.state)) {
+        const content = player.isImposter
+          ? getHintForDifficulty(session.word, session.settings.difficulty)
+          : session.word.word
+        socket.emit('your_role', { isImposter: player.isImposter, content })
+      }
+
+      // Notify others that the player is back
+      io.to(upperCode).emit('game_state', session)
+      console.log(`Player ${player.name} rejoined game ${upperCode}`)
+    })
+
     // Add player (single-device mode)
     socket.on('add_player', ({ name, avatarId }) => {
       const gameInfo = socketToGame.get(socket.id)

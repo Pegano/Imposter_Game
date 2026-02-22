@@ -111,6 +111,7 @@ export interface ClientToServerEvents {
   add_player: (data: { name: string; avatarId: string }) => void
   remove_player: (data: { playerId: string }) => void
   update_settings: (settings: Partial<GameSettings>) => void
+  rejoin_game: (data: { code: string; playerId: string }) => void
   start_round: () => void
   mark_viewed: () => void
   start_discussion: () => void
