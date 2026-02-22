@@ -5,12 +5,25 @@ import { Button } from '@/components/ui/Button'
 import { useGameStore } from '@/stores/gameStore'
 import { getAvatarById } from '@/lib/avatars'
 import { socket } from '@/lib/socket'
+import type { GameResultPayload } from '@imposter-game/shared'
 
 const RANK_MEDAL: Record<number, string> = { 0: '🥇', 1: '🥈', 2: '🥉' }
 
+async function postGameResult(payload: GameResultPayload) {
+  try {
+    await fetch('/api/stats/games', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch {
+    // Stats saving is best-effort — don't block the user
+  }
+}
+
 export function GameScoreboard() {
   const navigate = useNavigate()
-  const { players, nextRound, resetGame, isMultiDevice, myPlayerId } = useGameStore()
+  const { players, nextRound, resetGame, isMultiDevice, myPlayerId, session } = useGameStore()
 
   const [showWinner, setShowWinner] = useState(false)
 
@@ -36,6 +49,21 @@ export function GameScoreboard() {
     if (isMultiDevice) {
       socket.emit('end_game')
     } else {
+      // Save stats before resetting (only if at least one round was played)
+      const hasScores = players.some((p) => (p.score ?? 0) !== 0)
+      if (hasScores) {
+        const payload: GameResultPayload = {
+          code: session?.code ?? 'LOCAL',
+          roundsPlayed: session?.roundsPlayed ?? 1,
+          playerResults: sorted.map((p) => ({
+            playerName: p.name,
+            avatarId: p.avatarId,
+            score: p.score ?? 0,
+            isWinner: (p.score ?? 0) === maxScore && maxScore > 0,
+          })),
+        }
+        void postGameResult(payload)
+      }
       resetGame()
       navigate('/')
     }

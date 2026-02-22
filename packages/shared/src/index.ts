@@ -95,6 +95,7 @@ export interface GameSession {
   timerStartedAt?: Date
   timerPaused: boolean
   starterId?: string
+  roundsPlayed?: number
   createdAt: Date
 }
 
@@ -133,6 +134,48 @@ export interface ServerToClientEvents {
   game_revealed: (data: { word: string; imposter: GamePlayer; hint: string }) => void
   error: (message: string) => void
   connection_status: (connected: boolean) => void
+}
+
+// ============================================
+// STATS TYPES
+// ============================================
+
+export interface GameResultPayload {
+  code: string
+  roundsPlayed: number
+  playerResults: {
+    playerName: string
+    avatarId: string
+    score: number
+    isWinner: boolean
+  }[]
+}
+
+export interface PlayerStat {
+  playerName: string
+  avatarId: string
+  totalScore: number
+  gamesPlayed: number
+  wins: number
+}
+
+export interface GameResultSummary {
+  id: string
+  code: string
+  roundsPlayed: number
+  playerCount: number
+  createdAt: string
+  playerResults: {
+    playerName: string
+    avatarId: string
+    score: number
+    isWinner: boolean
+  }[]
+}
+
+export interface StatsResponse {
+  leaderboard: PlayerStat[]
+  recentGames: GameResultSummary[]
 }
 
 // ============================================

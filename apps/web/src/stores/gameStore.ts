@@ -170,7 +170,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         if (outcome === 'imposter_won' && !p.isImposter) return { ...p, score: score - 2 }
         return p
       })
-      return { players, gameState: 'scoreboard' as GameState }
+      const session = s.session
+        ? { ...s.session, roundsPlayed: (s.session.roundsPlayed ?? 0) + 1 }
+        : s.session
+      return { players, session, gameState: 'scoreboard' as GameState }
     }),
 
   setMultiDevice: (v) => set({ isMultiDevice: v }),

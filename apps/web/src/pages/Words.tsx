@@ -146,7 +146,7 @@ export function Words() {
         {selectedCat ? (
           <Button variant="ghost" size="sm" onClick={() => setSelectedCat(null)}>← Terug</Button>
         ) : (
-          <Link to="/settings">
+          <Link to="/">
             <Button variant="ghost" size="sm">← Terug</Button>
           </Link>
         )}

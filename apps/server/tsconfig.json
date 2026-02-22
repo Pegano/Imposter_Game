@@ -2,7 +2,6 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "noEmit": false,
@@ -10,6 +9,6 @@
       "@imposter-game/shared": ["../../packages/shared/src"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../packages/shared/src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

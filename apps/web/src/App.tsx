@@ -5,6 +5,7 @@ import { Join } from './pages/Join'
 import { Game } from './pages/Game'
 import { Settings } from './pages/Settings'
 import { Words } from './pages/Words'
+import { Stats } from './pages/Stats'
 import { useGameSocket } from './hooks/useGameSocket'
 import { UpdateBanner } from './components/UpdateBanner'
 
@@ -21,6 +22,7 @@ function App() {
         <Route path="/game" element={<Game />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/words" element={<Words />} />
+        <Route path="/stats" element={<Stats />} />
       </Routes>
       <UpdateBanner />
     </div>

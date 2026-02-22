@@ -27,7 +27,14 @@ export function Home() {
       </div>
 
       {/* Secondary Actions */}
-      <div className="flex gap-4 mt-12">
+      <div className="flex flex-wrap gap-3 mt-12 justify-center">
+        <Link to="/stats">
+          <Button variant="ghost" size="md">
+            <span className="text-xl mr-2">📊</span>
+            Statistieken
+          </Button>
+        </Link>
+
         <Link to="/settings">
           <Button variant="ghost" size="md">
             <span className="text-xl mr-2">⚙️</span>

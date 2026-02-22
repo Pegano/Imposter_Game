@@ -9,6 +9,29 @@ import type {
 import { generateGameCode, getHintForDifficulty } from '@imposter-game/shared'
 import { prisma } from '../db/client.js'
 
+async function saveGameResult(session: GameSession) {
+  try {
+    const maxScore = Math.max(...session.players.map((p) => p.score ?? 0))
+    await prisma.gameResult.create({
+      data: {
+        code: session.code,
+        roundsPlayed: session.roundsPlayed ?? 1,
+        playerCount: session.players.length,
+        playerResults: {
+          create: session.players.map((p) => ({
+            playerName: p.name,
+            avatarId: p.avatarId,
+            score: p.score ?? 0,
+            isWinner: (p.score ?? 0) === maxScore && maxScore > 0,
+          })),
+        },
+      },
+    })
+  } catch (err) {
+    console.error('Failed to save game result:', err)
+  }
+}
+
 // In-memory game sessions
 const gameSessions = new Map<string, GameSession>()
 
@@ -129,6 +152,7 @@ export function setupSocketHandlers(
         hasViewed: false,
         isHost: false,
         isConnected: true,
+        score: 0,
         joinedAt: new Date(),
       }
 
@@ -322,6 +346,7 @@ export function setupSocketHandlers(
         session.players.forEach((p) => { if (!p.isImposter) p.score -= 2 })
       }
 
+      session.roundsPlayed = (session.roundsPlayed ?? 0) + 1
       session.state = 'scoreboard'
       io.to(gameInfo.gameCode).emit('game_state', session)
     })
@@ -349,6 +374,11 @@ export function setupSocketHandlers(
     socket.on('end_game', () => {
       const gameInfo = socketToGame.get(socket.id)
       if (!gameInfo) return
+
+      const session = gameSessions.get(gameInfo.gameCode)
+      if (session && session.players.some((p) => (p.score ?? 0) !== 0)) {
+        void saveGameResult(session)
+      }
 
       gameSessions.delete(gameInfo.gameCode)
       io.to(gameInfo.gameCode).emit('game_state', null as unknown as GameSession)

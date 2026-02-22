@@ -7,6 +7,7 @@ import { categoriesRouter } from './routes/categories.js'
 import { wordsRouter } from './routes/words.js'
 import { groupsRouter } from './routes/groups.js'
 import { generateRouter } from './routes/generate.js'
+import { statsRouter } from './routes/stats.js'
 import { setupSocketHandlers } from './socket/handlers.js'
 import type { ClientToServerEvents, ServerToClientEvents } from '@imposter-game/shared'
 
@@ -40,6 +41,7 @@ app.use('/api/categories', categoriesRouter)
 app.use('/api/words', wordsRouter)
 app.use('/api/groups', groupsRouter)
 app.use('/api/generate', generateRouter)
+app.use('/api/stats', statsRouter)
 
 // Socket.IO handlers
 setupSocketHandlers(io)

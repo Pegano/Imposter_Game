@@ -46,3 +46,22 @@ model Player {
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
 }
+
+model GameResult {
+  id            String             @id @default(uuid())
+  code          String
+  roundsPlayed  Int                @default(1)
+  playerCount   Int
+  createdAt     DateTime           @default(now())
+  playerResults GamePlayerResult[]
+}
+
+model GamePlayerResult {
+  id           String     @id @default(uuid())
+  gameResult   GameResult @relation(fields: [gameResultId], references: [id], onDelete: Cascade)
+  gameResultId String
+  playerName   String
+  avatarId     String
+  score        Int
+  isWinner     Boolean    @default(false)
+}
