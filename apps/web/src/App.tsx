@@ -6,6 +6,7 @@ import { Game } from './pages/Game'
 import { Settings } from './pages/Settings'
 import { Words } from './pages/Words'
 import { useGameSocket } from './hooks/useGameSocket'
+import { UpdateBanner } from './components/UpdateBanner'
 
 function App() {
   useGameSocket()
@@ -21,6 +22,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/words" element={<Words />} />
       </Routes>
+      <UpdateBanner />
     </div>
   )
 }
