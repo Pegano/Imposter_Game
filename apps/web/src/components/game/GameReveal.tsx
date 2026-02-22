@@ -47,12 +47,13 @@ export function GameReveal() {
   ]
 
   return (
-    <div className="flex flex-col flex-1 p-4 items-center justify-center">
+    <div className="flex flex-col flex-1 overflow-y-auto">
+      <div className="flex flex-col items-center justify-center min-h-full p-4 gap-6">
       {/* The Word */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-6"
+        className="text-center"
       >
         <p className="text-slate-400 text-sm mb-2">Het woord was</p>
         <div className="bg-primary-500/20 border-2 border-primary-500 rounded-2xl px-8 py-4">
@@ -65,7 +66,7 @@ export function GameReveal() {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
-        className="text-center mb-6"
+        className="text-center"
       >
         <p className="text-slate-400 text-sm mb-3">De imposter was</p>
 
@@ -120,6 +121,7 @@ export function GameReveal() {
           </div>
         )}
       </motion.div>
+      </div>
     </div>
   )
 }
