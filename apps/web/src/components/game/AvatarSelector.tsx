@@ -17,40 +17,48 @@ export function AvatarSelector({ selected, onSelect, onClose }: AvatarSelectorPr
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black/60 z-40"
+        className="fixed inset-0 bg-black/70 z-40"
       />
 
       {/* Selector */}
       <motion.div
-        initial={{ opacity: 0, y: 100 }}
+        initial={{ opacity: 0, y: 120 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 100 }}
-        className="fixed bottom-0 inset-x-0 z-50 bg-slate-800 rounded-t-3xl p-6 safe-area-bottom"
+        exit={{ opacity: 0, y: 120 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        className="fixed bottom-0 inset-x-0 z-50 bg-slate-900 border-t border-white/10 rounded-t-3xl p-6 safe-area-bottom"
       >
-        <h2 className="text-xl font-semibold text-white text-center mb-6">
-          Kies je avatar
+        <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+        <h2 className="text-xl font-semibold text-white text-center mb-5">
+          Kies je karakter
         </h2>
 
-        <div className="grid grid-cols-4 gap-4 mb-6">
-          {AVATAR_PRESETS.map((avatar) => (
-            <button
-              key={avatar.id}
-              onClick={() => onSelect(avatar.id)}
-              className={`
-                aspect-square rounded-xl
-                flex flex-col items-center justify-center
-                transition-all duration-200
-                ${
-                  selected === avatar.id
-                    ? 'bg-primary-500 ring-2 ring-primary-300'
-                    : 'bg-slate-700 hover:bg-slate-600'
-                }
-              `}
-            >
-              <span className="text-3xl">{avatar.emoji}</span>
-              <span className="text-xs text-slate-300 mt-1">{avatar.name}</span>
-            </button>
-          ))}
+        <div className="grid grid-cols-4 gap-3 mb-6">
+          {AVATAR_PRESETS.map((avatar) => {
+            const isSelected = selected === avatar.id
+            return (
+              <motion.button
+                key={avatar.id}
+                whileTap={{ scale: 0.92 }}
+                onClick={() => onSelect(avatar.id)}
+                className={`
+                  relative aspect-square rounded-xl overflow-hidden
+                  flex flex-col items-center justify-center
+                  transition-all duration-200
+                  ${isSelected ? 'ring-2 ring-white scale-105' : 'opacity-70 hover:opacity-100'}
+                `}
+                style={{
+                  background: `linear-gradient(155deg, ${avatar.colors[0]}, ${avatar.colors[1]})`,
+                }}
+              >
+                {isSelected && (
+                  <div className="absolute inset-0 bg-white/10 pointer-events-none" />
+                )}
+                <span className="text-3xl drop-shadow-lg">{avatar.emoji}</span>
+                <span className="text-xs text-white/90 font-medium mt-1 drop-shadow">{avatar.name}</span>
+              </motion.button>
+            )
+          })}
         </div>
 
         <Button variant="ghost" fullWidth onClick={onClose}>

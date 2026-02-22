@@ -13,8 +13,8 @@ export default defineConfig({
         name: 'Imposter Game',
         short_name: 'Imposter',
         description: 'Een lokaal multiplayer party game',
-        theme_color: '#6366f1',
-        background_color: '#0f172a',
+        theme_color: '#8b5cf6',
+        background_color: '#080c18',
         display: 'standalone',
         orientation: 'portrait',
         icons: [

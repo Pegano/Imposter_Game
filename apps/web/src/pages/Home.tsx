@@ -1,18 +1,54 @@
 import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 
 export function Home() {
   return (
-    <div className="flex flex-col items-center justify-center flex-1 p-6 text-center">
-      {/* Logo / Title */}
-      <div className="mb-12">
-        <div className="text-6xl mb-4">🎭</div>
-        <h1 className="text-4xl font-bold text-white mb-2">IMPOSTER</h1>
-        <p className="text-slate-400 text-lg">Het party spel voor families</p>
-      </div>
+    <div className="flex flex-col items-center justify-center flex-1 p-6 text-center overflow-hidden">
 
-      {/* Main Actions */}
-      <div className="w-full max-w-xs space-y-4">
+      {/* Hero section */}
+      <motion.div
+        className="mb-10 relative"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Glow behind logo */}
+        <div className="absolute inset-0 rounded-full blur-3xl opacity-30 bg-violet-600 scale-75 translate-y-4" />
+
+        {/* Logo image */}
+        <motion.img
+          src="/logo.png"
+          alt="Imposter"
+          className="relative w-44 h-44 object-contain mx-auto drop-shadow-2xl"
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* Title */}
+        <h1
+          className="text-5xl font-black uppercase tracking-widest mt-4 mb-1"
+          style={{
+            background: 'linear-gradient(135deg, #38bdf8 0%, #8b5cf6 50%, #f472b6 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
+        >
+          IMPOSTER
+        </h1>
+        <p className="text-slate-400 text-sm tracking-wide">
+          Het party spel voor families
+        </p>
+      </motion.div>
+
+      {/* Main actions */}
+      <motion.div
+        className="w-full max-w-xs space-y-3"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+      >
         <Link to="/lobby" className="block">
           <Button variant="primary" size="lg" fullWidth>
             Nieuw Spel
@@ -24,10 +60,15 @@ export function Home() {
             Deelnemen
           </Button>
         </Link>
-      </div>
+      </motion.div>
 
-      {/* Secondary Actions */}
-      <div className="flex flex-wrap gap-3 mt-12 justify-center">
+      {/* Secondary actions */}
+      <motion.div
+        className="flex flex-wrap gap-3 mt-10 justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
+      >
         <Link to="/stats">
           <Button variant="ghost" size="md">
             <span className="text-xl mr-2">📊</span>
@@ -48,10 +89,10 @@ export function Home() {
             Woorden
           </Button>
         </Link>
-      </div>
+      </motion.div>
 
       {/* Version */}
-      <p className="text-slate-600 text-sm mt-auto pt-8">v1.0.0</p>
+      <p className="text-slate-700 text-xs mt-auto pt-8">v1.0.0</p>
     </div>
   )
 }
