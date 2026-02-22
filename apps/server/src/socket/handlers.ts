@@ -259,6 +259,7 @@ export function setupSocketHandlers(
       session.state = 'discussion'
       session.timerStartedAt = new Date()
       session.timerPaused = false
+      session.starterId = session.players[Math.floor(Math.random() * session.players.length)].id
 
       io.to(gameInfo.gameCode).emit('game_state', session)
 

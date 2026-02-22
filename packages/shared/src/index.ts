@@ -91,6 +91,7 @@ export interface GameSession {
   players: GamePlayer[]
   timerStartedAt?: Date
   timerPaused: boolean
+  starterId?: string
   createdAt: Date
 }
 

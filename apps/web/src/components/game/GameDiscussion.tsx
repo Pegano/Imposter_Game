@@ -5,17 +5,21 @@ import { getAvatarById } from '@/lib/avatars'
 import { socket } from '@/lib/socket'
 
 export function GameDiscussion() {
-  const { players, settings, setGameState, isMultiDevice, myPlayerId, timerRemaining } = useGameStore()
+  const { players, settings, setGameState, isMultiDevice, myPlayerId, timerRemaining, session } = useGameStore()
 
   const myPlayer = players.find((p) => p.id === myPlayerId)
   const amIHost = myPlayer?.isHost ?? false
 
-  // Pick a random starting player once on mount
-  const starter = useMemo(
+  // Multi-device: server determines the starter (stored in session.starterId)
+  // Single-device: pick randomly on mount
+  const localStarter = useMemo(
     () => players[Math.floor(Math.random() * players.length)],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
+  const starter = isMultiDevice
+    ? players.find((p) => p.id === session?.starterId) ?? localStarter
+    : localStarter
 
   // ── Single-device local timer ─────────────────────────────────
   const [timeRemaining, setTimeRemaining] = useState(settings.timerSeconds)
