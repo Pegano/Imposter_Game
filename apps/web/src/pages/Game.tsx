@@ -3,6 +3,7 @@ import { GameSetup } from '@/components/game/GameSetup'
 import { GameViewing } from '@/components/game/GameViewing'
 import { GameDiscussion } from '@/components/game/GameDiscussion'
 import { GameReveal } from '@/components/game/GameReveal'
+import { GameScoreboard } from '@/components/game/GameScoreboard'
 import { PlayerCard } from '@/components/game/PlayerCard'
 
 function JoiningWait() {
@@ -44,6 +45,8 @@ export function Game() {
       return <GameDiscussion />
     case 'reveal':
       return <GameReveal />
+    case 'scoreboard':
+      return <GameScoreboard />
     default:
       return <GameSetup />
   }

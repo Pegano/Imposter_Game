@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { GameState, GamePlayer, GameSettings, GameSession, Word } from '@imposter-game/shared'
+import type { GameState, GamePlayer, GameSettings, GameSession, Word, GameOutcome } from '@imposter-game/shared'
 import { generateGameCode } from '@imposter-game/shared'
 
 interface GameStore {
@@ -36,6 +36,9 @@ interface GameStore {
   setMultiDevice: (v: boolean) => void
   setMyPlayerId: (id: string) => void
   syncGameState: (session: GameSession) => void
+
+  // Scoring (single-device)
+  applyOutcome: (outcome: GameOutcome) => void
 }
 
 const DEFAULT_SETTINGS: GameSettings = {
@@ -84,6 +87,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       const newPlayer = {
         ...player,
         isHost: isFirstPlayer,
+        score: player.score ?? 0,
       }
       return {
         players: [...s.players, newPlayer],
@@ -153,8 +157,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
         ...p,
         isImposter: false,
         hasViewed: false,
+        // score is preserved across rounds
       })),
     })),
+
+  applyOutcome: (outcome) =>
+    set((s) => {
+      const players = s.players.map((p) => {
+        const score = p.score ?? 0
+        if (outcome === 'imposter_lost' && !p.isImposter) return { ...p, score: score + 1 }
+        if (outcome === 'imposter_guessed' && p.isImposter) return { ...p, score: score + 5 }
+        if (outcome === 'imposter_won' && !p.isImposter) return { ...p, score: score - 2 }
+        return p
+      })
+      return { players, gameState: 'scoreboard' as GameState }
+    }),
 
   setMultiDevice: (v) => set({ isMultiDevice: v }),
 

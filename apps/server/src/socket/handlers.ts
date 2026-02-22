@@ -4,6 +4,7 @@ import type {
   ServerToClientEvents,
   GameSession,
   GamePlayer,
+  GameOutcome,
 } from '@imposter-game/shared'
 import { generateGameCode, getHintForDifficulty } from '@imposter-game/shared'
 import { prisma } from '../db/client.js'
@@ -45,6 +46,7 @@ export function setupSocketHandlers(
         hasViewed: false,
         isHost: true,
         isConnected: true,
+        score: 0,
         joinedAt: new Date(),
       }
 
@@ -94,6 +96,7 @@ export function setupSocketHandlers(
         hasViewed: false,
         isHost: session.players.length === 0,
         isConnected: true,
+        score: 0,
         joinedAt: new Date(),
       }
 
@@ -300,6 +303,26 @@ export function setupSocketHandlers(
         })
       }
 
+      io.to(gameInfo.gameCode).emit('game_state', session)
+    })
+
+    // Score outcome after reveal
+    socket.on('set_outcome', (outcome: GameOutcome) => {
+      const gameInfo = socketToGame.get(socket.id)
+      if (!gameInfo) return
+
+      const session = gameSessions.get(gameInfo.gameCode)
+      if (!session) return
+
+      if (outcome === 'imposter_lost') {
+        session.players.forEach((p) => { if (!p.isImposter) p.score += 1 })
+      } else if (outcome === 'imposter_guessed') {
+        session.players.forEach((p) => { if (p.isImposter) p.score += 5 })
+      } else if (outcome === 'imposter_won') {
+        session.players.forEach((p) => { if (!p.isImposter) p.score -= 2 })
+      }
+
+      session.state = 'scoreboard'
       io.to(gameInfo.gameCode).emit('game_state', session)
     })
 

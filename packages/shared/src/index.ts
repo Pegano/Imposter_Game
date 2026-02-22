@@ -55,7 +55,9 @@ export interface PlayerGroup {
 // GAME SESSION TYPES
 // ============================================
 
-export type GameState = 'lobby' | 'joining' | 'setup' | 'viewing' | 'discussion' | 'reveal'
+export type GameState = 'lobby' | 'joining' | 'setup' | 'viewing' | 'discussion' | 'reveal' | 'scoreboard'
+
+export type GameOutcome = 'imposter_lost' | 'imposter_guessed' | 'imposter_won'
 
 export type Difficulty = 1 | 2 | 3
 
@@ -68,6 +70,7 @@ export interface GamePlayer {
   hasViewed: boolean
   isHost: boolean
   isConnected: boolean
+  score: number
   joinedAt: Date
 }
 
@@ -114,6 +117,7 @@ export interface ClientToServerEvents {
   reveal: () => void
   next_round: () => void
   end_game: () => void
+  set_outcome: (outcome: GameOutcome) => void
 }
 
 // Server → Client events

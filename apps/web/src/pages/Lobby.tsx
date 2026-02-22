@@ -84,6 +84,7 @@ export function Lobby() {
       hasViewed: false,
       isHost: players.length === 0,
       isConnected: true,
+      score: 0,
       joinedAt: new Date(),
     })
     setPlayerName('')
@@ -103,6 +104,7 @@ export function Lobby() {
         hasViewed: false,
         isHost: i === 0,
         isConnected: true,
+        score: 0,
         joinedAt: new Date(),
       })
     )
