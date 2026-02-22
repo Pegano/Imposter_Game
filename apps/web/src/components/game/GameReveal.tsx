@@ -8,9 +8,10 @@ import { socket } from '@/lib/socket'
 
 export function GameReveal() {
   const navigate = useNavigate()
-  const { players, currentWord, settings, nextRound, resetGame, isMultiDevice } = useGameStore()
+  const { players, currentWord, settings, nextRound, resetGame, isMultiDevice, myPlayerId } = useGameStore()
 
   const imposter = players.find((p) => p.isImposter)
+  const amIHost = players.find((p) => p.id === myPlayerId)?.isHost ?? false
   const imposterHint = currentWord
     ? getHintForDifficulty(currentWord, settings.difficulty)
     : ''
@@ -95,12 +96,20 @@ export function GameReveal() {
         transition={{ delay: 0.8 }}
         className="w-full max-w-xs space-y-3"
       >
-        <Button variant="primary" size="lg" fullWidth onClick={handleNextRound}>
-          Volgende Ronde
-        </Button>
-        <Button variant="ghost" size="lg" fullWidth onClick={handleEndGame}>
-          Stoppen
-        </Button>
+        {isMultiDevice && !amIHost ? (
+          <p className="text-slate-400 text-sm text-center">
+            Wachten op host om door te gaan...
+          </p>
+        ) : (
+          <>
+            <Button variant="primary" size="lg" fullWidth onClick={handleNextRound}>
+              Volgende Ronde
+            </Button>
+            <Button variant="ghost" size="lg" fullWidth onClick={handleEndGame}>
+              Stoppen
+            </Button>
+          </>
+        )}
       </motion.div>
     </div>
   )
