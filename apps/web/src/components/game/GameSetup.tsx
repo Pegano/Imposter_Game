@@ -155,6 +155,41 @@ export function GameSetup() {
             </div>
           </div>
 
+          {/* Imposter Count */}
+          <div>
+            <label className="block text-slate-400 text-sm mb-2">Aantal imposters</label>
+            <div className="bg-slate-800 rounded-xl p-4 flex items-center justify-between">
+              {(() => {
+                const maxImposters = Math.max(1, Math.floor((players.length - 1) / 2))
+                const count = settings.imposterCount ?? 1
+                return (
+                  <>
+                    <button
+                      onClick={() => handleUpdateSettings({ imposterCount: Math.max(1, count - 1) })}
+                      disabled={count <= 1}
+                      className="w-10 h-10 rounded-xl bg-slate-700 text-white text-xl font-bold disabled:opacity-30 hover:bg-slate-600 transition-colors"
+                    >
+                      −
+                    </button>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-white">{count}</p>
+                      <p className="text-slate-500 text-xs mt-1">
+                        max {maxImposters} bij {players.length} spelers
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleUpdateSettings({ imposterCount: Math.min(maxImposters, count + 1) })}
+                      disabled={count >= maxImposters}
+                      className="w-10 h-10 rounded-xl bg-slate-700 text-white text-xl font-bold disabled:opacity-30 hover:bg-slate-600 transition-colors"
+                    >
+                      +
+                    </button>
+                  </>
+                )
+              })()}
+            </div>
+          </div>
+
           {/* Timer Toggle */}
           <div>
             <label className="block text-slate-400 text-sm mb-2">Timer</label>

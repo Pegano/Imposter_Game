@@ -82,6 +82,7 @@ export function setupSocketHandlers(
           difficulty: 1,
           timerEnabled: true,
           timerSeconds: 120,
+          imposterCount: 1,
         },
         players: [hostPlayer],
         timerPaused: false,
@@ -276,13 +277,20 @@ export function setupSocketHandlers(
           return
         }
 
-        // Assign imposter
-        const imposterIndex = Math.floor(Math.random() * session.players.length)
+        // Assign N imposters (capped so civilians always outnumber imposters)
+        const maxImposters = Math.floor((session.players.length - 1) / 2)
+        const imposterCount = Math.min(
+          Math.max(1, session.settings.imposterCount ?? 1),
+          maxImposters
+        )
 
-        session.players.forEach((player, index) => {
-          player.isImposter = index === imposterIndex
-          player.hasViewed = false
-        })
+        session.players.forEach((p) => { p.isImposter = false; p.hasViewed = false })
+
+        const indices = new Set<number>()
+        while (indices.size < imposterCount) {
+          indices.add(Math.floor(Math.random() * session.players.length))
+        }
+        indices.forEach((i) => { session.players[i].isImposter = true })
 
         session.wordId = word.id
         session.word = word
@@ -371,14 +379,12 @@ export function setupSocketHandlers(
 
       session.state = 'reveal'
 
-      const imposter = session.players.find((p) => p.isImposter)
-      if (imposter) {
-        io.to(gameInfo.gameCode).emit('game_revealed', {
-          word: session.word.word,
-          imposter,
-          hint: getHintForDifficulty(session.word, session.settings.difficulty),
-        })
-      }
+      const imposters = session.players.filter((p) => p.isImposter)
+      io.to(gameInfo.gameCode).emit('game_revealed', {
+        word: session.word.word,
+        imposters,
+        hint: getHintForDifficulty(session.word, session.settings.difficulty),
+      })
 
       io.to(gameInfo.gameCode).emit('game_state', session)
     })

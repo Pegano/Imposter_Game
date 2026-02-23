@@ -8,7 +8,7 @@ import { socket } from '@/lib/socket'
 export function GameReveal() {
   const { players, currentWord, settings, applyOutcome, isMultiDevice, myPlayerId } = useGameStore()
 
-  const imposter = players.find((p) => p.isImposter)
+  const imposters = players.filter((p) => p.isImposter)
   const amIHost = players.find((p) => p.id === myPlayerId)?.isHost ?? false
   const imposterHint = currentWord
     ? getHintForDifficulty(currentWord, settings.difficulty)
@@ -61,33 +61,39 @@ export function GameReveal() {
         </div>
       </motion.div>
 
-      {/* The Imposter */}
+      {/* The Imposters */}
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
         className="text-center"
       >
-        <p className="text-slate-400 text-sm mb-3">De imposter was</p>
+        <p className="text-slate-400 text-sm mb-3">
+          {imposters.length === 1 ? 'De imposter was' : 'De imposters waren'}
+        </p>
 
-        {imposter && (
-          <div className="flex flex-col items-center">
-            <motion.div
-              initial={{ rotate: 0 }}
-              animate={{ rotate: [0, -10, 10, -10, 0] }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="relative"
-            >
-              <div className="w-20 h-20 rounded-full bg-red-500/20 border-4 border-red-500 flex items-center justify-center text-4xl">
-                {getAvatarById(imposter.avatarId)?.emoji || '🎭'}
-              </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-lg">
-                🎭
-              </div>
-            </motion.div>
-            <p className="text-lg font-bold text-white mt-3">{imposter.name}</p>
-            <p className="text-slate-400 text-xs mt-1">hint: "{imposterHint}"</p>
-          </div>
+        <div className="flex flex-wrap justify-center gap-4">
+          {imposters.map((imposter, i) => (
+            <div key={imposter.id} className="flex flex-col items-center">
+              <motion.div
+                initial={{ rotate: 0 }}
+                animate={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ delay: 0.5 + i * 0.15, duration: 0.5 }}
+                className="relative"
+              >
+                <div className="w-20 h-20 rounded-full bg-red-500/20 border-4 border-red-500 flex items-center justify-center text-4xl">
+                  {getAvatarById(imposter.avatarId)?.emoji || '🎭'}
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-lg">
+                  🎭
+                </div>
+              </motion.div>
+              <p className="text-lg font-bold text-white mt-3">{imposter.name}</p>
+            </div>
+          ))}
+        </div>
+        {imposters.length > 0 && (
+          <p className="text-slate-400 text-xs mt-3">hint: "{imposterHint}"</p>
         )}
       </motion.div>
 

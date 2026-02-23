@@ -80,6 +80,7 @@ export interface GameSettings {
   difficulty: Difficulty
   timerEnabled: boolean
   timerSeconds: number
+  imposterCount: number // min 1
 }
 
 // Live game session
@@ -132,7 +133,7 @@ export interface ServerToClientEvents {
   your_role: (data: { isImposter: boolean; content: string }) => void
   your_player: (player: GamePlayer) => void
   timer_update: (remainingSeconds: number) => void
-  game_revealed: (data: { word: string; imposter: GamePlayer; hint: string }) => void
+  game_revealed: (data: { word: string; imposters: GamePlayer[]; hint: string }) => void
   error: (message: string) => void
   connection_status: (connected: boolean) => void
 }

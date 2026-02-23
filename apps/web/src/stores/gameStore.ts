@@ -46,6 +46,7 @@ const DEFAULT_SETTINGS: GameSettings = {
   difficulty: 1,
   timerEnabled: true,
   timerSeconds: 120,
+  imposterCount: 1,
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -117,7 +118,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setTimerRemaining: (seconds) => set({ timerRemaining: seconds }),
 
   assignRoles: (word) => {
-    const { players } = get()
+    const { players, settings } = get()
     if (players.length < 3) return
 
     // Reset all players
@@ -127,9 +128,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       hasViewed: false,
     }))
 
-    // Pick random imposter
-    const imposterIndex = Math.floor(Math.random() * resetPlayers.length)
-    resetPlayers[imposterIndex].isImposter = true
+    // Pick N unique random imposters (capped so civilians always outnumber imposters)
+    const count = Math.min(
+      settings.imposterCount ?? 1,
+      Math.floor((resetPlayers.length - 1) / 2)
+    )
+    const indices = new Set<number>()
+    while (indices.size < count) {
+      indices.add(Math.floor(Math.random() * resetPlayers.length))
+    }
+    indices.forEach((i) => { resetPlayers[i].isImposter = true })
 
     set({
       players: resetPlayers,

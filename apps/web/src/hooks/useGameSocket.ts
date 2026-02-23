@@ -67,7 +67,7 @@ export function useGameSocket() {
       useGameStore.getState().setTimerRemaining(remaining)
     })
 
-    socket.on('game_revealed', ({ word, imposter, hint }) => {
+    socket.on('game_revealed', ({ word, hint }) => {
       const store = useGameStore.getState()
       if (!store.currentWord) {
         store.setCurrentWord({
@@ -81,7 +81,6 @@ export function useGameSocket() {
           updatedAt: new Date(),
         })
       }
-      void imposter
     })
 
     socket.on('error', (message) => {

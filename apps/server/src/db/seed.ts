@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client'
+import { allExtraWords } from './seed-extra-all'
 
 const prisma = new PrismaClient()
 
@@ -445,8 +446,9 @@ async function main() {
   ]
 
   // Upsert all words
+  const allWords = [...words, ...allExtraWords]
   let count = 0
-  for (const w of words) {
+  for (const w of allWords) {
     const id = `${w.categoryId}-${w.word.toLowerCase().replace(/[^a-z0-9]/g, '-')}`
     await prisma.word.upsert({
       where: { id },
