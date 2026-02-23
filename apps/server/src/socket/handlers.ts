@@ -157,13 +157,15 @@ export function setupSocketHandlers(
       const session = gameSessions.get(upperCode)
 
       if (!session) {
-        socket.emit('error', 'Game niet gevonden')
+        // Game no longer exists — tell the client to reset so it stops trying to rejoin
+        socket.emit('game_state', null as unknown as GameSession)
         return
       }
 
       const player = session.players.find((p) => p.id === playerId)
       if (!player) {
-        socket.emit('error', 'Speler niet gevonden in dit spel')
+        // Player not in this session — same cleanup
+        socket.emit('game_state', null as unknown as GameSession)
         return
       }
 

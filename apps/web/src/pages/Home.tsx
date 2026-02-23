@@ -49,13 +49,13 @@ export function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.15, duration: 0.4 }}
       >
-        <Link to="/lobby" className="block">
+        <Link to="/lobby" className="block" onClick={() => localStorage.removeItem('imposter_session')}>
           <Button variant="primary" size="lg" fullWidth>
             Nieuw Spel
           </Button>
         </Link>
 
-        <Link to="/join" className="block">
+        <Link to="/join" className="block" onClick={() => localStorage.removeItem('imposter_session')}>
           <Button variant="secondary" size="lg" fullWidth>
             Deelnemen
           </Button>
