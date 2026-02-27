@@ -54,7 +54,15 @@ export function AvatarSelector({ selected, onSelect, onClose }: AvatarSelectorPr
                 {isSelected && (
                   <div className="absolute inset-0 bg-white/10 pointer-events-none" />
                 )}
-                <span className="text-3xl drop-shadow-lg">{avatar.emoji}</span>
+                {avatar.imageNotViewed ? (
+                  <img
+                    src={avatar.imageNotViewed}
+                    alt={avatar.name}
+                    className="w-14 h-14 object-contain drop-shadow-lg"
+                  />
+                ) : (
+                  <span className="text-3xl drop-shadow-lg">{avatar.emoji}</span>
+                )}
                 <span className="text-xs text-white/90 font-medium mt-1 drop-shadow">{avatar.name}</span>
               </motion.button>
             )
