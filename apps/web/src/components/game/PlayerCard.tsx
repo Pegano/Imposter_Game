@@ -48,8 +48,8 @@ export function PlayerCard({
         style={{ background: colorTo }}
       />
 
-      {/* Viewed overlay */}
-      {hasViewed && (
+      {/* Viewed overlay — alleen voor emoji-avatars (PNG-avatars wisselen zelf van afbeelding) */}
+      {hasViewed && !avatar?.imageViewed.endsWith('.png') && (
         <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center z-10">
           <span className="text-4xl mb-1">👀</span>
           <span className="text-white/60 text-xs">Bekeken</span>
