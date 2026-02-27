@@ -7,6 +7,14 @@ import { getAvatarById } from '@/lib/avatars'
 import { getHintForDifficulty, allPlayersViewed } from '@imposter-game/shared'
 import { socket } from '@/lib/socket'
 
+function AvatarDisplay({ avatarId, className }: { avatarId: string; className?: string }) {
+  const avatar = getAvatarById(avatarId)
+  if (avatar?.imageNotViewed.endsWith('.png')) {
+    return <img src={avatar.imageNotViewed} alt={avatar.name} className={className ?? 'w-12 h-12 object-contain'} />
+  }
+  return <span className="text-4xl">{avatar?.emoji ?? '🎭'}</span>
+}
+
 export function GameViewing() {
   const { players, currentWord, settings, markPlayerViewed, setGameState, myPlayerId, myRole, isMultiDevice } =
     useGameStore()
@@ -67,7 +75,9 @@ export function GameViewing() {
                   : 'bg-primary-500/20 border-primary-500 cursor-pointer hover:bg-primary-500/30'}
               `}
             >
-              <div className="text-5xl">{getAvatarById(myPlayer.avatarId)?.emoji ?? '🎭'}</div>
+              <div className="flex items-center justify-center w-14 h-14">
+                <AvatarDisplay avatarId={myPlayer.avatarId} className="w-14 h-14 object-contain" />
+              </div>
               <p className="text-white font-semibold">{myPlayer.name}</p>
               {iHaveViewed
                 ? <p className="text-slate-400 text-xs">✓ Bekeken</p>
@@ -121,8 +131,8 @@ export function GameViewing() {
               onClick={() => { setMyCardOpen(false); socket.emit('mark_viewed') }}
             >
               <div className="text-center mb-8">
-                <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center text-4xl mx-auto mb-3">
-                  {getAvatarById(myPlayer.avatarId)?.emoji || '🎭'}
+                <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                  <AvatarDisplay avatarId={myPlayer.avatarId} className="w-16 h-16 object-contain" />
                 </div>
                 <p className="text-white font-semibold">{myPlayer.name}</p>
                 <p className="text-slate-400 text-sm">
@@ -208,8 +218,8 @@ export function GameViewing() {
             onClick={handleCloseSingleDevice}
           >
             <div className="text-center mb-8">
-              <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center text-4xl mx-auto mb-3">
-                {getAvatarById(viewingPlayer.avatarId)?.emoji || '🎭'}
+              <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center mx-auto mb-3 overflow-hidden">
+                <AvatarDisplay avatarId={viewingPlayer.avatarId} className="w-16 h-16 object-contain" />
               </div>
               <p className="text-white font-semibold">{viewingPlayer.name}</p>
               <p className="text-slate-400 text-sm">
