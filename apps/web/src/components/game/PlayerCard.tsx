@@ -76,19 +76,19 @@ export function PlayerCard({
       )}
 
       {/* Main avatar — fills the card */}
-      <div className="absolute inset-0 flex items-center justify-center pb-8">
-        {avatar && (hasViewed ? avatar.imageViewed : avatar.imageNotViewed)?.endsWith('.png') ? (
-          <img
-            src={hasViewed ? avatar.imageViewed : avatar.imageNotViewed}
-            alt={avatar.name}
-            className="w-24 h-24 object-contain drop-shadow-2xl"
-          />
-        ) : (
+      {avatar && (hasViewed ? avatar.imageViewed : avatar.imageNotViewed)?.endsWith('.png') ? (
+        <img
+          src={hasViewed ? avatar.imageViewed : avatar.imageNotViewed}
+          alt={avatar.name}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center pb-8">
           <span className="text-7xl drop-shadow-2xl leading-none">
             {avatar?.emoji ?? '🎭'}
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Name band at bottom */}
       <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm px-2 py-2">

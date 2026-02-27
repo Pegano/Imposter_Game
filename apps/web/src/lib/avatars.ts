@@ -100,7 +100,7 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
   },
   {
     id: 'norah',
-    name: 'Norah',
+    name: 'Dark Imposter',
     emoji: '🎭',
     colors: ['#7C3AED', '#DB2777'],
     imageNotViewed: '/avatars/norah.png',
@@ -108,7 +108,7 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
   },
   {
     id: 'imposter1',
-    name: 'Imposter',
+    name: 'Norah',
     emoji: '😈',
     colors: ['#1E293B', '#DC2626'],
     imageNotViewed: '/avatars/imposter1-gesloten.png',
@@ -116,7 +116,7 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
   },
   {
     id: 'imposter2',
-    name: 'Imposter 2',
+    name: 'Imposter',
     emoji: '😈',
     colors: ['#DC2626', '#1E293B'],
     imageNotViewed: '/avatars/imposter2.png',

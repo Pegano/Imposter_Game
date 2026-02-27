@@ -55,15 +55,20 @@ export function AvatarSelector({ selected, onSelect, onClose }: AvatarSelectorPr
                   <div className="absolute inset-0 bg-white/10 pointer-events-none" />
                 )}
                 {avatar.imageNotViewed.endsWith('.png') ? (
-                  <img
-                    src={avatar.imageNotViewed}
-                    alt={avatar.name}
-                    className="w-14 h-14 object-contain drop-shadow-lg"
-                  />
+                  <>
+                    <img
+                      src={avatar.imageNotViewed}
+                      alt={avatar.name}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <span className="absolute bottom-1 left-0 right-0 text-center text-xs text-white font-medium drop-shadow z-10">{avatar.name}</span>
+                  </>
                 ) : (
-                  <span className="text-3xl drop-shadow-lg">{avatar.emoji}</span>
+                  <>
+                    <span className="text-3xl drop-shadow-lg">{avatar.emoji}</span>
+                    <span className="text-xs text-white/90 font-medium mt-1 drop-shadow">{avatar.name}</span>
+                  </>
                 )}
-                <span className="text-xs text-white/90 font-medium mt-1 drop-shadow">{avatar.name}</span>
               </motion.button>
             )
           })}
