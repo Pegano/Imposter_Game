@@ -111,7 +111,7 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     name: 'Imposter',
     emoji: '😈',
     colors: ['#1E293B', '#DC2626'],
-    imageNotViewed: '/avatars/imposter1.png',
+    imageNotViewed: '/avatars/imposter1-gesloten.png',
     imageViewed: '/avatars/imposter1.png',
   },
 ]
