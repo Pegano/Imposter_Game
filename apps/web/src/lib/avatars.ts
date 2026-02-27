@@ -98,6 +98,22 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     imageNotViewed: '/avatars/superhero-sleeping.svg',
     imageViewed: '/avatars/superhero-awake.svg',
   },
+  {
+    id: 'norah',
+    name: 'Norah',
+    emoji: '🎭',
+    colors: ['#7C3AED', '#DB2777'],
+    imageNotViewed: '/avatars/norah.png',
+    imageViewed: '/avatars/norah.png',
+  },
+  {
+    id: 'imposter1',
+    name: 'Imposter',
+    emoji: '😈',
+    colors: ['#1E293B', '#DC2626'],
+    imageNotViewed: '/avatars/imposter1.png',
+    imageViewed: '/avatars/imposter1.png',
+  },
 ]
 
 export function getAvatarById(id: string) {
