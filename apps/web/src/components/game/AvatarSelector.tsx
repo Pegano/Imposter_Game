@@ -54,7 +54,7 @@ export function AvatarSelector({ selected, onSelect, onClose }: AvatarSelectorPr
                 {isSelected && (
                   <div className="absolute inset-0 bg-white/10 pointer-events-none" />
                 )}
-                {avatar.imageNotViewed ? (
+                {avatar.imageNotViewed.endsWith('.png') ? (
                   <img
                     src={avatar.imageNotViewed}
                     alt={avatar.name}

@@ -75,11 +75,19 @@ export function PlayerCard({
         </button>
       )}
 
-      {/* Main emoji — fills the card */}
+      {/* Main avatar — fills the card */}
       <div className="absolute inset-0 flex items-center justify-center pb-8">
-        <span className="text-7xl drop-shadow-2xl leading-none">
-          {avatar?.emoji ?? '🎭'}
-        </span>
+        {avatar && (hasViewed ? avatar.imageViewed : avatar.imageNotViewed)?.endsWith('.png') ? (
+          <img
+            src={hasViewed ? avatar.imageViewed : avatar.imageNotViewed}
+            alt={avatar.name}
+            className="w-24 h-24 object-contain drop-shadow-2xl"
+          />
+        ) : (
+          <span className="text-7xl drop-shadow-2xl leading-none">
+            {avatar?.emoji ?? '🎭'}
+          </span>
+        )}
       </div>
 
       {/* Name band at bottom */}
