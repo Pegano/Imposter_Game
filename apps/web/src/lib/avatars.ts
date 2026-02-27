@@ -114,6 +114,14 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     imageNotViewed: '/avatars/imposter1-gesloten.png',
     imageViewed: '/avatars/imposter1.png',
   },
+  {
+    id: 'imposter2',
+    name: 'Imposter 2',
+    emoji: '😈',
+    colors: ['#DC2626', '#1E293B'],
+    imageNotViewed: '/avatars/imposter2.png',
+    imageViewed: '/avatars/imposter2.png',
+  },
 ]
 
 export function getAvatarById(id: string) {
