@@ -114,6 +114,7 @@ export interface ClientToServerEvents {
   update_settings: (settings: Partial<GameSettings>) => void
   rejoin_game: (data: { code: string; playerId: string }) => void
   start_round: () => void
+  skip_word: () => void
   mark_viewed: () => void
   start_discussion: () => void
   toggle_timer_pause: () => void

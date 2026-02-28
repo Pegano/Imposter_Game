@@ -6,6 +6,7 @@ import { useGameStore } from '@/stores/gameStore'
 import { getAvatarById } from '@/lib/avatars'
 import { getHintForDifficulty, allPlayersViewed } from '@imposter-game/shared'
 import { socket } from '@/lib/socket'
+import { wordsApi } from '@/lib/api'
 
 function AvatarDisplay({ avatarId, className }: { avatarId: string; className?: string }) {
   const avatar = getAvatarById(avatarId)
@@ -16,11 +17,29 @@ function AvatarDisplay({ avatarId, className }: { avatarId: string; className?: 
 }
 
 export function GameViewing() {
-  const { players, currentWord, settings, markPlayerViewed, setGameState, myPlayerId, myRole, isMultiDevice } =
+  const { players, currentWord, settings, markPlayerViewed, setGameState, myPlayerId, myRole, isMultiDevice, assignRoles } =
     useGameStore()
 
   const [viewingPlayerId, setViewingPlayerId] = useState<string | null>(null)
   const [myCardOpen, setMyCardOpen] = useState(false)
+
+  const handleSkipWord = async () => {
+    try {
+      const word = await wordsApi.getRandom(settings.categoryId ?? undefined)
+      assignRoles({
+        id: word.id,
+        categoryId: word.categoryId,
+        word: word.word,
+        hintEasy: word.hintEasy,
+        hintMedium: word.hintMedium,
+        hintHard: word.hintHard,
+        createdAt: new Date(word.createdAt),
+        updatedAt: new Date(word.updatedAt),
+      })
+    } catch {
+      // ignore
+    }
+  }
 
   const viewingPlayer = viewingPlayerId ? players.find((p) => p.id === viewingPlayerId) : null
   const allViewed = allPlayersViewed(players)
@@ -106,6 +125,15 @@ export function GameViewing() {
             ))}
           </div>
         </div>
+
+        {amIHost && (
+          <button
+            onClick={() => socket.emit('skip_word')}
+            className="text-slate-400 text-sm underline underline-offset-2 text-center py-2 hover:text-slate-300"
+          >
+            Woord overslaan
+          </button>
+        )}
 
         {allViewed && amIHost && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -199,6 +227,13 @@ export function GameViewing() {
           {viewedCount} van {players.length} spelers hebben gekeken
         </p>
       </div>
+
+      <button
+        onClick={handleSkipWord}
+        className="text-slate-400 text-sm underline underline-offset-2 text-center py-2 hover:text-slate-300 w-full"
+      >
+        Woord overslaan
+      </button>
 
       {allViewed && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>

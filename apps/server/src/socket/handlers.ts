@@ -320,6 +320,64 @@ export function setupSocketHandlers(
       }
     })
 
+    // Skip the current word and pick a new one (host only, during viewing)
+    socket.on('skip_word', async () => {
+      const gameInfo = socketToGame.get(socket.id)
+      if (!gameInfo) return
+
+      const session = gameSessions.get(gameInfo.gameCode)
+      if (!session) return
+
+      if (session.state !== 'viewing') return
+
+      const host = session.players.find((p) => p.id === gameInfo.playerId)
+      if (!host?.isHost) return
+
+      try {
+        const whereClause = session.settings.categoryId
+          ? { categoryId: session.settings.categoryId }
+          : {}
+
+        const wordCount = await prisma.word.count({ where: whereClause })
+        if (wordCount === 0) { socket.emit('error', 'Geen woorden gevonden'); return }
+
+        const skip = Math.floor(Math.random() * wordCount)
+        const word = await prisma.word.findFirst({ where: whereClause, skip })
+        if (!word) { socket.emit('error', 'Geen woord gevonden'); return }
+
+        const maxImposters = Math.floor((session.players.length - 1) / 2)
+        const imposterCount = Math.min(Math.max(1, session.settings.imposterCount ?? 1), maxImposters)
+
+        session.players.forEach((p) => { p.isImposter = false; p.hasViewed = false })
+
+        const indices = new Set<number>()
+        while (indices.size < imposterCount) {
+          indices.add(Math.floor(Math.random() * session.players.length))
+        }
+        indices.forEach((i) => { session.players[i].isImposter = true })
+
+        session.wordId = word.id
+        session.word = word
+
+        io.to(gameInfo.gameCode).emit('game_state', session)
+
+        session.players.forEach((player) => {
+          const playerSocket = findSocketByPlayerId(player.id)
+          if (playerSocket) {
+            const content = player.isImposter
+              ? getHintForDifficulty(word, session.settings.difficulty)
+              : word.word
+            playerSocket.emit('your_role', { isImposter: player.isImposter, content })
+          }
+        })
+
+        console.log(`Word skipped in game ${gameInfo.gameCode}`)
+      } catch (error) {
+        console.error('Error skipping word:', error)
+        socket.emit('error', 'Fout bij overslaan woord')
+      }
+    })
+
     // Player viewed their card
     socket.on('mark_viewed', () => {
       const gameInfo = socketToGame.get(socket.id)
