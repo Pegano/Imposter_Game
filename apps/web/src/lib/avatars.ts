@@ -15,8 +15,8 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     name: 'Panda',
     emoji: '🐼',
     colors: ['#374151', '#1E293B'],
-    imageNotViewed: '/avatars/panda-sleeping.svg',
-    imageViewed: '/avatars/panda-awake.svg',
+    imageNotViewed: '/avatars/panda-links.png',
+    imageViewed: '/avatars/panda-rechts.png',
   },
   {
     id: 'lion',
@@ -71,8 +71,8 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     name: 'Prinses',
     emoji: '👸',
     colors: ['#BE185D', '#7C3AED'],
-    imageNotViewed: '/avatars/princess-sleeping.svg',
-    imageViewed: '/avatars/princess-awake.svg',
+    imageNotViewed: '/avatars/prinses-links.png',
+    imageViewed: '/avatars/prinses-rechts.png',
   },
   {
     id: 'ghost',
@@ -84,11 +84,11 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
   },
   {
     id: 'superhero',
-    name: 'Superheld',
+    name: 'Superman',
     emoji: '🦸',
     colors: ['#DC2626', '#D97706'],
-    imageNotViewed: '/avatars/superhero-sleeping.svg',
-    imageViewed: '/avatars/superhero-awake.svg',
+    imageNotViewed: '/avatars/superman-links.png',
+    imageViewed: '/avatars/superman-rechts.png',
   },
   {
     id: 'cowboys',
