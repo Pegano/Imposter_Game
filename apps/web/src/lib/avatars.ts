@@ -146,6 +146,22 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     imageNotViewed: '/avatars/slang-gesloten.png',
     imageViewed: '/avatars/slang-open.png',
   },
+  {
+    id: 'robot',
+    name: 'Robot',
+    emoji: '🤖',
+    colors: ['#0369A1', '#0E7490'],
+    imageNotViewed: '/avatars/robot-gesloten.png',
+    imageViewed: '/avatars/robot-open.png',
+  },
+  {
+    id: 'ridder',
+    name: 'Ridder',
+    emoji: '⚔️',
+    colors: ['#374151', '#6D28D9'],
+    imageNotViewed: '/avatars/ridder-gesloten.png',
+    imageViewed: '/avatars/ridder-open.png',
+  },
 ]
 
 export function getAvatarById(id: string) {
