@@ -123,14 +123,6 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     imageViewed: '/avatars/koningen-open.png',
   },
   {
-    id: 'norah',
-    name: 'Dark Imposter',
-    emoji: '🎭',
-    colors: ['#7C3AED', '#DB2777'],
-    imageNotViewed: '/avatars/norah.png',
-    imageViewed: '/avatars/norah.png',
-  },
-  {
     id: 'imposter1',
     name: 'Norah',
     emoji: '😈',
@@ -143,8 +135,16 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     name: 'Imposter',
     emoji: '😈',
     colors: ['#DC2626', '#1E293B'],
-    imageNotViewed: '/avatars/imposter2.png',
+    imageNotViewed: '/avatars/norah.png',
     imageViewed: '/avatars/imposter2.png',
+  },
+  {
+    id: 'slang',
+    name: 'Slang',
+    emoji: '🐍',
+    colors: ['#065F46', '#14532D'],
+    imageNotViewed: '/avatars/slang-gesloten.png',
+    imageViewed: '/avatars/slang-open.png',
   },
 ]
 
