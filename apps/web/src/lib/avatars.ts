@@ -75,14 +75,6 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     imageViewed: '/avatars/princess-awake.svg',
   },
   {
-    id: 'robot',
-    name: 'Robot',
-    emoji: '🤖',
-    colors: ['#0369A1', '#0E7490'],
-    imageNotViewed: '/avatars/robot-sleeping.svg',
-    imageViewed: '/avatars/robot-awake.svg',
-  },
-  {
     id: 'ghost',
     name: 'Spookje',
     emoji: '👻',
@@ -151,16 +143,16 @@ export const AVATAR_PRESETS: (AvatarPreset & { emoji: string; colors: [string, s
     name: 'Robot',
     emoji: '🤖',
     colors: ['#0369A1', '#0E7490'],
-    imageNotViewed: '/avatars/robot-open.png',
-    imageViewed: '/avatars/robot-gesloten.png',
+    imageNotViewed: '/avatars/robot-gesloten.png',
+    imageViewed: '/avatars/robot-open.png',
   },
   {
     id: 'ridder',
     name: 'Ridder',
     emoji: '⚔️',
     colors: ['#374151', '#6D28D9'],
-    imageNotViewed: '/avatars/ridder-open.png',
-    imageViewed: '/avatars/ridder-gesloten.png',
+    imageNotViewed: '/avatars/ridder-gesloten.png',
+    imageViewed: '/avatars/ridder-open.png',
   },
 ]
 
